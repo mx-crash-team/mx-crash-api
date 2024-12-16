@@ -11,6 +11,9 @@ apps:
   transactionsProcessor:
     port: integer
     maxLookBehind: integer
+    crashGameContractAddress: string
+  websocketPublisher:
+    test: string
 libs:
   common:
     network:

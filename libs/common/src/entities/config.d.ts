@@ -16,6 +16,10 @@ export interface Config {
     transactionsProcessor: {
       port: number;
       maxLookBehind: number;
+      crashGameContractAddress: string;
+    };
+    websocketPublisher: {
+      test: string;
     };
   };
   libs: {

@@ -1,0 +1,178 @@
+{
+  "buildInfo": {
+    "rustc": {
+      "version": "1.79.0",
+      "commitHash": "129f3b9964af4d4a709d1383930ade12dfe7c081",
+      "commitDate": "2024-06-10",
+      "channel": "Stable",
+      "short": "rustc 1.79.0 (129f3b996 2024-06-10)"
+    },
+    "contractCrate": {
+      "name": "mx-crash-sc",
+      "version": "0.0.0"
+    },
+    "framework": {
+      "name": "multiversx-sc",
+      "version": "0.54.6"
+    }
+  },
+  "name": "MxCrashSc",
+  "constructor": {
+    "inputs": [],
+    "outputs": []
+  },
+  "upgradeConstructor": {
+    "inputs": [],
+    "outputs": []
+  },
+  "endpoints": [
+    {
+      "name": "newGame",
+      "onlyOwner": true,
+      "mutability": "mutable",
+      "inputs": [
+        {
+          "name": "duration",
+          "type": "u64"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "status",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Status"
+        }
+      ]
+    },
+    {
+      "name": "game_nonce",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "submitBet",
+      "mutability": "mutable",
+      "payableInTokens": [
+        "EGLD"
+      ],
+      "inputs": [
+        {
+          "name": "cash_out",
+          "type": "u32"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "endGame",
+      "mutability": "mutable",
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "name": "compute_prizes",
+      "mutability": "mutable",
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "name": "claim",
+      "mutability": "mutable",
+      "inputs": [],
+      "outputs": []
+    }
+  ],
+  "events": [
+    {
+      "identifier": "started_game",
+      "inputs": [
+        {
+          "name": "game_nonce",
+          "type": "u32",
+          "indexed": true
+        }
+      ]
+    },
+    {
+      "identifier": "ended_game",
+      "inputs": [
+        {
+          "name": "crash_point",
+          "type": "u32",
+          "indexed": true
+        },
+        {
+          "name": "game_nonce",
+          "type": "u32",
+          "indexed": true
+        }
+      ]
+    },
+    {
+      "identifier": "user_bet",
+      "inputs": [
+        {
+          "name": "user",
+          "type": "Address",
+          "indexed": true
+        },
+        {
+          "name": "bet",
+          "type": "BigUint",
+          "indexed": true
+        },
+        {
+          "name": "cash_out",
+          "type": "u32",
+          "indexed": true
+        }
+      ]
+    },
+    {
+      "identifier": "winner_announcement",
+      "inputs": [
+        {
+          "name": "winner",
+          "type": "Address",
+          "indexed": true
+        },
+        {
+          "name": "prize",
+          "type": "BigUint",
+          "indexed": true
+        },
+        {
+          "name": "game_nonce",
+          "type": "u32",
+          "indexed": true
+        }
+      ]
+    }
+  ],
+  "esdtAttributes": [],
+  "hasCallback": false,
+  "types": {
+    "Status": {
+      "type": "enum",
+      "variants": [
+        {
+          "name": "Ongoing",
+          "discriminant": 0
+        },
+        {
+          "name": "Ended",
+          "discriminant": 1
+        }
+      ]
+    }
+  }
+}

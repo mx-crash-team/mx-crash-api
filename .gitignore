@@ -47,3 +47,6 @@ lerna-debug.log*
 # Environment
 .env
 .env.custom
+
+# Wallets
+*.pem

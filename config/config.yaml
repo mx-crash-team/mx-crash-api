@@ -10,6 +10,9 @@ apps:
   transactionsProcessor:
     port: 4003
     maxLookBehind: 100
+    crashGameContractAddress: ${CRASH_GAME_CONTRACT_ADDRESS}
+  websocketPublisher:
+    test: testString
 libs:
   common:
     network: ${NETWORK}
