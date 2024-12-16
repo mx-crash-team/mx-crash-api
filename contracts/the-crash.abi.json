@@ -59,6 +59,16 @@
       ]
     },
     {
+      "name": "crash_point",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "u32"
+        }
+      ]
+    },
+    {
       "name": "submitBet",
       "mutability": "mutable",
       "payableInTokens": [
@@ -79,16 +89,26 @@
       "outputs": []
     },
     {
+      "name": "claim",
+      "mutability": "mutable",
+      "inputs": [],
+      "outputs": []
+    },
+    {
       "name": "compute_prizes",
       "mutability": "mutable",
       "inputs": [],
       "outputs": []
     },
     {
-      "name": "claim",
-      "mutability": "mutable",
+      "name": "getGameDetails",
+      "mutability": "readonly",
       "inputs": [],
-      "outputs": []
+      "outputs": [
+        {
+          "type": "GameDetails"
+        }
+      ]
     }
   ],
   "events": [
@@ -110,6 +130,16 @@
           "type": "u32",
           "indexed": true
         },
+        {
+          "name": "game_nonce",
+          "type": "u32",
+          "indexed": true
+        }
+      ]
+    },
+    {
+      "identifier": "ended_awarding",
+      "inputs": [
         {
           "name": "game_nonce",
           "type": "u32",
@@ -161,6 +191,19 @@
   "esdtAttributes": [],
   "hasCallback": false,
   "types": {
+    "GameDetails": {
+      "type": "struct",
+      "fields": [
+        {
+          "name": "status",
+          "type": "Status"
+        },
+        {
+          "name": "nonce",
+          "type": "u32"
+        }
+      ]
+    },
     "Status": {
       "type": "enum",
       "variants": [
@@ -171,6 +214,10 @@
         {
           "name": "Ended",
           "discriminant": 1
+        },
+        {
+          "name": "Awarding",
+          "discriminant": 2
         }
       ]
     }
