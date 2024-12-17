@@ -1,5 +1,11 @@
 import { Module } from '@nestjs/common';
-import { ApiMetricsController, CommonConfigModule, DynamicModuleUtils, HealthCheckController } from '@libs/common';
+import {
+  ApiMetricsController,
+  CommonConfigModule,
+  DynamicModuleUtils,
+  HealthCheckController,
+  WebSocketPublisherModule,
+} from '@libs/common';
 import { ApiMetricsModule } from '@libs/common';
 import { LoggingModule } from '@multiversx/sdk-nestjs-common';
 import { AppConfigModule } from './config/app-config.module';
@@ -14,9 +20,11 @@ import { ProcessorService } from './processor/processor.service';
     CommonConfigModule,
     ScheduleModule.forRoot(),
     DynamicModuleUtils.getCachingModule(),
+    WebSocketPublisherModule,
   ],
   providers: [
     ProcessorService,
+    DynamicModuleUtils.getPubSubService(),
   ],
   controllers: [
     ApiMetricsController,

@@ -27,6 +27,23 @@
   },
   "endpoints": [
     {
+      "name": "deposit",
+      "onlyOwner": true,
+      "mutability": "mutable",
+      "payableInTokens": [
+        "EGLD"
+      ],
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "name": "withdraw",
+      "onlyOwner": true,
+      "mutability": "mutable",
+      "inputs": [],
+      "outputs": []
+    },
+    {
       "name": "newGame",
       "onlyOwner": true,
       "mutability": "mutable",
@@ -95,7 +112,7 @@
       "outputs": []
     },
     {
-      "name": "compute_prizes",
+      "name": "computePrizes",
       "mutability": "mutable",
       "inputs": [],
       "outputs": []
@@ -201,6 +218,18 @@
         {
           "name": "nonce",
           "type": "u32"
+        },
+        {
+          "name": "duration",
+          "type": "u64"
+        },
+        {
+          "name": "init_moment",
+          "type": "u64"
+        },
+        {
+          "name": "current_timestamp",
+          "type": "u64"
         }
       ]
     },

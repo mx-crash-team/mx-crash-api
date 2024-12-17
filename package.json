@@ -29,7 +29,7 @@
     "generate-types": "mxnest schema types config/schema.yaml libs/common/src/entities/config.d.ts"
   },
   "dependencies": {
-    "@multiversx/sdk-core": "13.2.1",
+    "@multiversx/sdk-core": "13.16.0",
     "@multiversx/sdk-event-processor": "^1.0.2",
     "@multiversx/sdk-nestjs-auth": "3.7.7",
     "@multiversx/sdk-nestjs-cache": "3.7.7",
@@ -43,6 +43,7 @@
     "@multiversx/sdk-network-providers": "2.4.3",
     "@multiversx/sdk-transaction-decoder": "^2.0.0",
     "@multiversx/sdk-transaction-processor": "0.1.33",
+    "@multiversx/sdk-wallet": "^4.6.0",
     "@nestjs/bull": "^10.0.1",
     "@nestjs/common": "10.2.0",
     "@nestjs/config": "3.0.1",
@@ -54,7 +55,7 @@
     "@nestjs/schedule": "^4.0.0",
     "@nestjs/swagger": "7.1.16",
     "@nestjs/typeorm": "10.0.0",
-    "@nestjs/websockets": "10.2.8",
+    "@nestjs/websockets": "^10.2.8",
     "agentkeepalive": "^4.3.0",
     "bull": "^4.10.4",
     "cache-manager": "^5.2.1",
