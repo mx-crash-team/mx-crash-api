@@ -4,7 +4,11 @@ import { WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server, Socket } from 'socket.io';
 
 @Injectable()
-@WebSocketGateway(3099)
+@WebSocketGateway(3099, {
+  cors: {
+    origin: "*"
+  }
+})
 export class WebSocketPublisherService {
   private readonly maxAddressesSize = 16;
 
@@ -15,7 +19,6 @@ export class WebSocketPublisherService {
   ) { }
 
   async handleDisconnect(socket: Socket) {
-    console.log("disconnecting");
     const { addresses, error } = this.getAddressesFromSocketQuery(socket);
     if (error) {
       socket.emit('error', error);
@@ -29,7 +32,6 @@ export class WebSocketPublisherService {
 
   async handleConnection(socket: Socket) {
     const { addresses, error } = this.getAddressesFromSocketQuery(socket);
-    console.log("connection incomming", addresses, error);
     if (error) {
       socket.emit('error', error);
       return;
@@ -43,12 +45,16 @@ export class WebSocketPublisherService {
   }
 
   async onGameStatus(event: any) {
-    console.log("sending game status", event);
     this.server?.to("erd1deaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaqtv0gag").emit("onGameStatus", event);
   }
 
   async onEndGame(event: any) {
     this.server?.to("erd1deaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaqtv0gag").emit("onEndGame", event);
+  }
+
+  async onNewBets(event: any) {
+    console.log('emmiting', event);
+    this.server?.to("erd1deaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaqtv0gag").emit("onNewBets", event);
   }
 
   private getAddressesFromSocketQuery(socket: Socket): { addresses: string[], error?: string } {

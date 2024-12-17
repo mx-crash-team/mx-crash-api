@@ -1,4 +1,5 @@
 import { EventProcessor } from "@multiversx/sdk-event-processor";
+import { CacheService } from "@multiversx/sdk-nestjs-cache";
 import {
   Account,
   Address,
@@ -13,14 +14,14 @@ import {
   SmartContractTransactionsOutcomeParser,
   TransactionComputer,
   TransactionEventsParser,
-  findEventsByFirstTopic, TransactionsConverter,
+  findEventsByFirstTopic, TransactionsConverter, TransactionEvent,
 } from '@multiversx/sdk-core/out';
-import { Locker } from "@multiversx/sdk-nestjs-common";
+import { Constants, Locker } from '@multiversx/sdk-nestjs-common';
 import { Inject, Injectable } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
 import { promises } from "fs";
 import { UserSigner } from "@multiversx/sdk-wallet/out";
-import { CommonConfigService } from "@libs/common";
+import { CacheInfo, CommonConfigService } from "@libs/common";
 import { AppConfigService } from "../config/app-config.service";
 import * as contractAbi from "../../../../contracts/the-crash.abi.json"
 import { WebSocketPublisherService } from '@libs/common/websocket';
@@ -36,6 +37,7 @@ export class ProcessorService {
   private readonly txEventParser: TransactionEventsParser;
 
   constructor(
+    private readonly cacheService: CacheService,
     private readonly commonConfigService: CommonConfigService,
     private readonly appConfigService: AppConfigService,
     private readonly websocketService: WebSocketPublisherService,
@@ -59,31 +61,45 @@ export class ProcessorService {
     this.txEventParser = new TransactionEventsParser({ abi });
   }
 
-  // @Cron('*/1 * * * * *')
-  // async handleNewEvents() {
-  //   await Locker.lock('newEvents', async () => {
-  //     await this.eventProcessor.start({
-  //       elasticUrl: 'https://devnet-index.multiversx.com',
-  //       eventIdentifiers: ['newGame'],
-  //       emitterAddresses: ['erd1qqqqqqqqqqqqqpgqttgxw8gr9lunvg5z9862kjwn4e2x6eameyvs5kykra'],
-  //       pageSize: 1000,
-  //       scrollTimeout: "1m",
-  //       delayBetweenRequestsInMilliseconds: 100,
-  //       getLastProcessedTimestamp: async () => {
-  //         return this.lastEventProcessedTimestamp;
-  //       },
-  //       setLastProcessedTimestamp: async (timestamp: number) => {
-  //         this.lastEventProcessedTimestamp = timestamp;
-  //       },
-  //       onEventsReceived: async (highestTimestamp: any, events: any) => {
-  //         console.log(`Received ${events.length} events with the highest timestamp ${highestTimestamp}`);
-  //         if (events.length > 0) {
-  //            console.log(events);
-  //         }
-  //       },
-  //     });
-  //   });
-  // }
+  @Cron('*/1 * * * * *')
+  async handleNewEvents() {
+    await Locker.lock('newEvents', async () => {
+      await this.eventProcessor.start({
+        elasticUrl: 'https://devnet-index.multiversx.com',
+        eventIdentifiers: ['submitBet'],
+        emitterAddresses: [this.appConfigService.config.crashGameContractAddress],
+        pageSize: 1000,
+        scrollTimeout: "1m",
+        delayBetweenRequestsInMilliseconds: 100,
+        getLastProcessedTimestamp: async () => {
+          return await this.cacheService.getRemote('lastProcessedTimestamp') || 0;
+        },
+        setLastProcessedTimestamp: async (timestamp: number) => {
+          await this.cacheService.setRemote('lastProcessedTimestamp', timestamp, Constants.oneMonth());
+        },
+        onEventsReceived: async (highestTimestamp: any, events: any) => {
+          let parsedEvents = events.map((event: any) => {
+            return this.txEventParser.parseEvent({ event: new TransactionEvent({
+                ...event,
+                topics: event.topics.map((topic: string) => Buffer.from(topic, 'hex')),
+            })});
+          });
+
+          parsedEvents = parsedEvents.map((event: any) => {
+            return {
+              address: event.user.bech32(),
+              bet: event.bet,
+              cash_out: event.cash_out,
+            }
+          });
+
+          console.log(parsedEvents);
+
+          await this.websocketService.onNewBets(parsedEvents);
+        },
+      });
+    });
+  }
 
   @Cron('*/2 * * * * *')
   async handleGameProcessLoop() {
@@ -91,10 +107,9 @@ export class ProcessorService {
     await Locker.lock('handleGameProcessLoop', async () => {
       const currentGame = await this.getCurrentGame();
 
-      await this.websocketService.onGameStatus({
-        name: "onGameStatus",
-      });
+      await this.websocketService.onGameStatus(currentGame);
 
+      console.log('current status', currentGame.status);
       switch (currentGame.status) {
         case 'Ended': // Keep in mind that when no game has (ever) started, status is Ended
           await this.startNewGame();
@@ -130,9 +145,7 @@ export class ProcessorService {
     const txOnNetwork = await new TransactionWatcher(this.apiNetworkProvider)
       .awaitCompleted(txHash);
 
-    await this.websocketService.onStartNewGame({
-      name: "startNewGame",
-    });
+    await this.websocketService.onStartNewGame("");
   }
 
   async endGame() {
@@ -157,11 +170,7 @@ export class ProcessorService {
 
     const parsedEvent = this.txEventParser.parseEvent({ event });
     console.log("having parsed event should get crash_point for nonce", parsedEvent);
-    await this.websocketService.onEndGame({
-      name: "onEndGame"
-    });
-
-    // send FE event with note that we start computing prizes
+    await this.websocketService.onEndGame(parsedEvent);
   }
 
   async computePrizes() {

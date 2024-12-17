@@ -44,6 +44,23 @@
       "outputs": []
     },
     {
+      "name": "givePermission",
+      "mutability": "mutable",
+      "inputs": [
+        {
+          "name": "permitted_address",
+          "type": "Address"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "revokePermission",
+      "mutability": "mutable",
+      "inputs": [],
+      "outputs": []
+    },
+    {
       "name": "newGame",
       "onlyOwner": true,
       "mutability": "mutable",
@@ -86,6 +103,32 @@
       ]
     },
     {
+      "name": "contestants",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "variadic<Address>",
+          "multi_result": true
+        }
+      ]
+    },
+    {
+      "name": "available_prize",
+      "mutability": "readonly",
+      "inputs": [
+        {
+          "name": "address",
+          "type": "Address"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "BigUint"
+        }
+      ]
+    },
+    {
       "name": "submitBet",
       "mutability": "mutable",
       "payableInTokens": [
@@ -95,6 +138,11 @@
         {
           "name": "cash_out",
           "type": "u32"
+        },
+        {
+          "name": "optional_contestant",
+          "type": "optional<Address>",
+          "multi_arg": true
         }
       ],
       "outputs": []
